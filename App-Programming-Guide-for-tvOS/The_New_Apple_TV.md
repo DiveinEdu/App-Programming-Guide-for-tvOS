@@ -57,4 +57,73 @@ Apple TV上所有的视频都是通过HTTP Live Streaming和FairPlay Streaming�
 
 分层的图片能够让封面图变得更加生动。当一个界面元素被用户选中高亮，但是还没有点击的时候，能够获取焦点。这时分层图片会随着用户在遥控器触摸板上的动作旋转。每层图片的旋转速度会有细微的差别，从而产生视差效果。这些细微的效果让用户的注意力更加集中。
 
-我们的视差图片当然是由设计师创建的，但是如何将它们运用到应用中呢？`UIImageView`被改造成可以支持视差图片。
+我们的视差图片当然是由设计师创建的，但是如何将它们运用到应用中呢？`UIImageView`被改造成可以支持视差图片，因此大多数情况下我们只要对代码进行微调就可以了。整个工作流如何改变取决于我们是直接将图片添加到应用内还是从服务器动态加载。
+
+####新的tvOS框架
+
+Apple tvOS引入了一下几个特有的框架。
+
+- TVMLJS。描述了C/S应用中用来加载TVML页面的JavaScript接口。见[《TVJS Framework Reference》](https://developer.apple.com/library/prerelease/tvos/documentation/TVMLJS/Reference/TVJSFrameworkReference/index.html#//apple_ref/doc/uid/TP40016076)。
+- TVMLKit。提供一种整合JavaScript和TVML的方法。见[《TVMLKit Framework Reference》](https://developer.apple.com/library/prerelease/tvos/documentation/TVMLKit/Reference/TVMLKit_Collection/index.html#//apple_ref/doc/uid/TP40016429)。
+- TVServices。描述了如何为应用添加顶部扩展[《TVServices Framework Reference》](https://developer.apple.com/library/prerelease/tvos/documentation/TVServices/Reference/TVServices_Ref/index.html#//apple_ref/doc/uid/TP40016412)。
+
+####从iOS中继承的框架
+
+Apple tvOS从iOS继承了许多框架。
+
+- Accelerate
+- AudioToolbox
+- AudioUnit
+- AVFoundation
+- AVKit
+- CFNetwork
+- CloudKit
+- CoreBluetooth
+- CoreData
+- CoreFoundation
+- CoreGraphics
+- CoreImage
+- CoreLocation
+- CoreMedia
+- CoreSpotlight
+- CoreText
+- CoreVideo
+- Darwin
+- Foundation
+- GameController
+- GameKit
+- GameplayKit
+- GLKit
+- ImageIO
+- MachO
+- MediaAccessibility
+- MediaPlayer
+- MediaToolbox
+- Metal
+- MetalKit
+- MetalPerformanceShaders
+- MobileCoreServices
+- ModelIO
+- OpenGLES
+- SceneKit
+- Security
+- simd
+- SpriteKit
+- StoreKit
+- Swift Standard Library
+- SystemConfiguration
+- UIKit
+
+####新用户界面的挑战
+
+Apple tvOS并没有提供鼠标给用户，并且也不能通过手势和触摸交互。相反，用户使用新的Siri遥控或者游戏控制器进行操作。
+
+使用新的控制方式，整个用户体验都会变得完全不一样。Mac和iOS设备一般是单人体验。虽然用户可能会通过应用与其它人进行交互，但是同一个设备一般只有一个人使用。但是新的Apple TV的用户体验更加社会化。几个人可以一起坐在沙发上一边交流一边使用应用。在设计应用的使用将这些变化都考虑进去是非常重要的。
+
+####资源限制
+
+Apple TV上的应用没有持久化的本地存储。这意味着每个应用都应该将数据存放在iCloud，并且通过一种用户体验较好的方式将它们获取到。
+
+除了缺乏本地存储，Apple TV应用的大小也被限制在200MB。如果一个应用的大小超过了限制，就需要使用按需加载的方式将它们打包。知道什么时候加载以及如何价值新的资源对开发一款成功的应用非常重要。更多关于按需加载资源的信息，见[《On-Demand Resources Guide》](https://developer.apple.com/library/prerelease/tvos/documentation/FileManagement/Conceptual/On_Demand_Resources_Guide/index.html#//apple_ref/doc/uid/TP40015083)。
+
+下一章：[《创建一个C/S应用》](./Creating_a_Client-Server_App.md)。
