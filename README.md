@@ -12,7 +12,7 @@
 
 ##目录
 ####关于Apple TV
-#####[新的Apple TV](./The_New_Apple_TV.md)
+#####[新的Apple TV](./App-Programming-Guide-for-tvOS/The_New_Apple_TV.md)
 
 ####构建Apple TV应用
 #####1. [创建一个C/S应用](./App-Programming-Guide-for-tvOS/Creating_a_Client-Server_App.md)
