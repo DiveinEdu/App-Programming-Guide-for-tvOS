@@ -17,7 +17,7 @@
 
 ##在线阅读
 
-本文档使用Gitbook制作，可以直接在线阅读或者导出PDF、EPUB等格式。
+本文档使用[Gitbook](http://diveinedu.gitbooks.io/app-programming-guide-for-tvos/)制作，可以直接在线阅读或者导出PDF、EPUB等格式。
 
 ##目录
 ####关于Apple TV
