@@ -4,7 +4,16 @@
 
 本翻译没有获得**苹果公司**的授权，纯属学习爱好。
 
-####欢迎大家帮忙翻译校正或者提供更好的Apple TV开发资料，交流群：85157830（AppleTV开发梦工厂）
+####欢迎大家帮忙翻译校正或者提供更好的Apple TV开发资料。
+####交流群：85157830（AppleTV开发梦工厂）
+####问答网站：[潜心俱乐部](http://divein.club)
+
+##致谢
+####翻译（按加入时间排序）
+- [戴维营教育](http://v.diveinedu.com)
+- [AndyLiao8](https://github.com/AndyLiao8)
+- [Cheetah.Kiong](https://github.com/wuqiong)
+- [wcrane](https://github.com/wcrane)
 
 ##在线阅读
 
@@ -24,7 +33,7 @@
 
 ####资源管理
 #####1. [iCloud存储](./App-Programming-Guide-for-tvOS/iCloud_Storage.md)
-#####2. [按需加载资源](./On-Demand_Resources.md)
+#####2. [按需加载资源](./App-Programming-Guide-for-tvOS/On-Demand_Resources.md)
 
 ####版本历史
 #####[文档版本历史](./App-Programming-Guide-for-tvOS/Document_Revision_History.md)
