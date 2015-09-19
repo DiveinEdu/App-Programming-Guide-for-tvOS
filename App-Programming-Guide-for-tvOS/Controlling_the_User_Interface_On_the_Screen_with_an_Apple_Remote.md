@@ -95,19 +95,128 @@ UIKit中通过一个叫“焦点引擎”的东西管理控件的焦点的获取
 
 ####程序更新焦点
 
+虽然大部分情况下，焦点会自动更新，但是在一些情况下我们还是需要在代码里改变焦点。焦点环境可以通过调用`setNeedsFocusUpdate`请求更新焦点。下面是几个通过程序更新焦点的例子：
 
+- 应用程序的内容发生改变，需要将焦点放置到用户关心的内容上。例如：音乐应用总是将焦点放置在当前正在播放的歌曲上。当一首歌结束的时候，应用程序应该将焦点更新到播放列表的下一曲上。
+- 用户了一个操作，需要将焦点移动到他所关注的内容上。例如：一个左侧显示菜单、右侧显示内容的分屏应用。用户移动左边的菜单项时，右边的内容会对应的发生改变。当用户选择一个菜单项，他们期望右边的内容会自动选中第一项。
+- 当一个自定义控件获取焦点的时候，需要按一定规则更新它内部的状态。例如：一个拾取器控件允许用户选中它。当用户使用遥控选中这个控件的时候，焦点被移动到这个控件内，让用户可以选择其中一个选项。点击遥控上的**Menu**按钮可以让控件再次获取焦点。在这种场景下，选中该控件会请求更新焦点，通过`preferredFocusedView`将焦点移动到其中一个子视图上。
 
 ####在应用中支持焦点
 
+应用中的UIKit控件会自动支持焦点的管理。然而大多数应用中，我们都需要实现自定义焦点行为，例如当焦点改变的时候更新焦点状态、创建新的交互元素和执行自定义焦点动画。下面的章节介绍了关于自定义焦点行为的内容。
+
+`UIFocusEnvironment`控制视图结构与焦点相关的行为。这意味着`UIViewController`控制它的根视图和子视图的焦点相关行为，而`UIView`控制它本身与子视图的焦点行为。因此多个焦点环境可以控制同一个视图结构的焦点相关的行为——视图相互包含，并且都在同一个视图控制器中。控制视图相关的行为并不代表它就获取到了焦点。只是说明这个焦点环境能够控制焦点在它的视图结构中的移动方式，以及UI如何处理该结构中焦点的改变。
+
 ####在视图控制器中支持焦点
+
+因为`UIViewController`响应`UIFocusEnvironment`，自定义视图控制器可以覆盖`UIFocusEnvironment`中的代理方法来实现自定义焦点行为。自定义视图控制器：
+
+- 覆盖`preferredFocusedView`来明确焦点默认从哪里开始。
+- 覆盖`shouldUpdateFocusInContext:`定义焦点如何移动。
+- 覆盖`didUpdateFocusInContext:withAnimationCoordinator:`响应焦点的更新时机并且改变应用的状态。
+
+视图控制器可以通过调用`setNeedsFocusUpdate`请求焦点引擎来重置焦点到当前的`preferredFocusedView`上。注意，只有当该视图控制器包含一个已经获取焦点的视图时，`setNeedsFocusUpdate`才会起作用。
 
 ####在CollectionView和TableView中支持焦点
 
+使用集合视图和表视图时，我们通过代理对象自定义焦点行为。这个模式同时也用于基于焦点的界面的实现。`UITableViewDelegate`和`UICollectionViewDelegate`协议定义了`UIFocusEnvironment`协议中相同的方法，但是只能给表视图和集合视图使用。
+
+在集合视图和表视图中支持焦点的技巧：
+
+- 使用`UICollectionViewDelegate`中的`collectionView:canFocusItemAtIndexPath:`或者`UITableViewDelegate`中的`tableView:canFocusRowAtIndexPath:`方法表明一个Cell是否可以获取焦点。这与在自定义视图中重写`canBecomeFocused`方法的作用一样。
+- 使用`UICollectionView`和`UITableView`中的`remembersLastFocusedIndexPath`属性表示离开焦点离开后，再次获取焦点时是否应该停留在最后一次的位置。
+
 ####在自定义视图中支持焦点
+
+`UIViewController`、`UIView`都实现了`UIFocusEnvironment`协议，因此所有在**[在视图控制器中支持焦点](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/AppleTV_PG/WorkingwiththeAppleTVRemote.html#//apple_ref/doc/uid/TP40015241-CH5-SW1)**提到的都可以在自定义视图中使用。因为视图能够获取焦点，所以实现自定义视图的焦点行为时，还需要考虑一些额外的东西：
+
+- 如果自定义视图需要能够获取焦点，重写`canBecomeFocused`方法，并返回`YES`（默认返回`NO`）。视图可以是一直都能够获取焦点或者只能在一些条件下获取焦点。例如`UIButton`在禁用状态是不能获取焦点的。
+- 如果一个视图需要将焦点重定向到领悟一个焦点（例如子视图），需要重写`preferredFocusedView`。
+- 重写`didUpdateFocusInContext:withAnimationCoordinator:`响应焦点改变事件，并更新程序状态。
 
 ####焦点相关动画
 
+当焦点发生改变的时候，获取焦点的视图执行动画，而前一个视图动画进入无焦点状态。与应用中的其它动画不一样的是，UIKit会调整焦点动画的时长和动画曲线来达到某种系统级的行为。例如，当焦点快速移动的时候，动画的时长会虽用户的移动而加速。
+
+UIKit为支持焦点的视图类提供了系统定义的焦点动画。使用UIKit的内置类`UIFocusAnimationCoordinator`和`addCoordinatedAniamtions:completion:`方法可以为系统定义的行为创建动画。
+
+添加到协调器的动画可以在获取焦点或者失去焦点的时候运行（不是同时），这取决于提供给协调器的焦点环境。获取焦点的视图和失去焦点的视图共同的父视图或者焦点获取视图的父视图，在焦点动画执行时，运行自己的动画。而失焦视图的父视图在失去焦点的时候执行动画。
+
+**图 3-3** 自定义焦点动画
+
+![自定义焦点动画](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/AppleTV_PG/Art/animation_chart_2x.png)
+
+视图在获取焦点或者失去焦点的时候一般拥有不同的动画。我们可以通过重写视图的`didUpdateFocusInContext:withAnimationCoordinator:`方法并且检查`context`来指定动画的类型。下面是重写`didUpdateFocusInContext:withAnimationCoordinator:`的例子。
+
+```objc
+- (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator
+{
+    [super didUpdateFocusInContext:context withAnimationCoordinator:coordinator];
+ 
+    if (self == context.nextFocusedView) {
+        [coordinator addCoordinatedAnimations:^{
+            // focusing animations
+        } completion:^{
+            // completion
+        }];
+    } else if (self == context.previouslyFocusedView) {
+        [coordinator addCoordinatedAnimations:^{
+            // unfocusing animations
+        } completion:^{
+            // completion
+        }];
+    }
+}
+```
+
+焦点视图和失焦视图的共同父视图有时需要同时执行动画。例如焦点在一个`UICollectionView`的Cell间移动的时候。这种情况下，推荐的方法是继承`UICollectionViewCell`并且在子类中使用上面的代码片段实现动画。
+
 ####调试焦点问题
 
-####为什么焦点移动出错
+UIKit在应用运行的时候会帮助我们调试焦点的问题。
 
+####为什么视图不能获取焦点？
+
+有许多原因会导致视图不能获取焦点，下面列举了一些例子（但不是全部）：
+
+- 视图的`canBecomeFocused`方法返回`NO`。
+- 视图的`hidden`属性被设置为`YES`。
+- 视图的`alpha`属性被设置为`0`。
+- 视图被设置为不能接受用户交互。
+- 视图被其它视图覆盖。
+
+UIKit为`UIView`提供了一个隐藏的方法`_whyIsThisViewNotFocusable`来帮助测试上面提到的几种情况。这个方法只在调试器中有用，并且会将可能的原因打印出来。
+
+```bash
+(lldb) po [(UIView *)0x148db5234 _whyIsThisViewNotFocusable]
+ISSUE: This view has userInteractionEnabled set to NO. Views must allow user interaction to be focusable.
+ISSUE: This view returns NO from -canBecomeFocused.
+(lldb) po [(UIView *)0x14b644d70 _whyIsThisViewNotFocusable]
+ISSUE: One or more ancestors are not eligible for focus, preventing this view from being focusable. Details:
+ 
+    <ExampleAncestorView 0x148db5810>:
+        ISSUE: This view has userInteractionEnabled set to NO. Views must allow user interaction to be focusable.
+```
+
+####为什么焦点没有移动到想要的地方？
+
+有时焦点并没有移动到我们想要的地方，或者根本就不移动。焦点引擎给我们提供了许多的方便，但是有时还是需要给它更多的信息来帮助它进行决策。
+
+UIKit在`UIFocusUpdateContext`对象中给焦点引擎发送一个如何搜索下一个焦点视图的可视化表示。可以通过在`shouldUpdateFocusInContext:`或者`didUpdateFocusInContext:withAnimationCoordinator:`中设置断点查看这个图像。当执行到这些断点的时候，可以在调试器的`context`参数，并且打开**Quick Look**。
+
+**图 3-4** 在调试器中选取`context`参数
+
+![在调试器中选取context参数](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/AppleTV_PG/Art/ContextParameter_2x.png)
+
+如果是在一次用户操作中执行到断点（不是通过代码更新焦点），**Quick Look**显示一个搜索路径的图片来表示焦点引擎的搜索步骤。见**图 3-5**。
+
+**图 3-5** Quick Look示意图
+
+![](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/AppleTV_PG/Art/QuickLookPresentationOfImage_2x.png)
+
+这里是**Quick Look**图片传递的一些信息。
+
+- 前一个焦点视图（搜索的起点），红色。
+- 搜索路径，用红色点线表示。
+- 搜索路径上的所有可以获取焦点的`UIView`区域，用不同深度的紫色表示。
+- 搜索路径上所有可以获取焦点的`UIFocusGuide`区域用不同深度的蓝色表示。
