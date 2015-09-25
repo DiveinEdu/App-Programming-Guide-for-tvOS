@@ -21,3 +21,9 @@
 
 
 ##主要内容
+
+Apple TV的存储空间非常有限，并且不保证存储在设备上的数据在用户下次打开程序的时候还继续存在。因此为了在多个设备上分析用户的数据，我们需要将用户的数据存储的其它地方。苹果给我们提供了两个选择：iCloud键值存储和CloudKit。
+
+当存储空间小于1MB的时候，我们可以选择iCloud KVS。iCloud KVS自动在不同设备之间进行同步。只有应用拥有者才能访问存储在iCloud KVS上的数据。应用的其它用户不能够访问这些信息。更多信息，建“[设计iCloud中的键值数据](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/iCloudDesignGuide/Chapters/DesigningForKey-ValueDataIniCloud.html#//apple_ref/doc/uid/TP40012094-CH7)”。
+
+如果需要存储更多数据，比如说超过1MB，我们需要在应用中实现CloudKit。CloudKit允许一个用户存储的数据被另一个用户访问。这个在一个用户的行为能够影响都另外的用户时非常有用。比如游戏中一个用户的动作能够直接影响另外的用户。更多关于在应用中实现CloudKit的信息，见”[Cloud Quick Start](https://developer.apple.com/library/prerelease/tvos/documentation/DataManagement/Conceptual/CloudKitQuickStart/Introduction/Introduction.html#//apple_ref/doc/uid/TP40014987)“。
