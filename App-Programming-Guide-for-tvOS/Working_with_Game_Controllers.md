@@ -43,6 +43,26 @@ Apple TV上的游戏控制器框架有如下几个显著的变化：
 
 ##将Apple TV遥控器作为游戏控制器
 
-Apple TV遥控可以作为一个功能受限的控制器使用。和其它控制器一样，遥控器在Game Controller框架中也被当作一个`GCController`对象。Apple TV遥控支持`GCMotion`和`GCMicroGamepad`两种用法。
+Apple TV遥控可以作为一个功能受限的控制器使用。和其它控制器一样，遥控器在Game Controller框架中也被当作一个`GCController`对象。Apple TV遥控支持`GCMotion`和`GCMicroGamepad`两种模式。只有Apple TV遥控支持微型手柄模式，想要支持其它游戏控制器，我们必须实现扩展的游戏手柄模式。
+
+扩展的控制器有以下特征：
+
+- 遥控上的触控板可以用作十字键（D-pad），提供模拟数据输入。
+- 遥控在垂直和水平方向都能使用。由应用决定是否需要自动翻转输入数据。
+- 通过紧按触摸板，作为数字按钮（A）输入内容。
+- 遥控上的**Play/Pause**按钮用作数字键（X）。
+- 菜单按钮用作暂停按钮。
 
 ##确定控制器输入的目标
+
+在iOS上，游戏控制器事件由Game Controller框架处理。默认情况下，tvOS上的UIKit框架处理底层的控制器输入，并且在响应链上传递上层事件。但是底层的游戏控制器事件默认不可用。因为所有事件都被UIKit框架处理了。如果我们需要直接读取控制器的输入，必须先关闭UIKit。如图6-1所示两条输入路径。
+
+图6－1 控制器输入目标
+
+![控制器输入目标](https://developer.apple.com/library/prerelease/tvos/documentation/General/Conceptual/AppleTV_PG/Art/GCEventViewController_2x.png)
+
+例如，一个常见的游戏设计是：一个视图显示主菜单选项，第二个菜单显示游戏界面。主菜单可以使用UIKit元素来实现，这样它就可以与焦点行为保持一致。当游戏视图显示的时候，我们可以关闭UIKit的输入过程，从而使用游戏控制器来直接获取输入。
+
+在tvOS上，当我们想要在游戏里直接处理输入的时候。需要使用`GCEventViewController`或者它的子类来显示游戏内容。当`GCEventViewController`对象的视图或自视图成为第一响应者后，游戏控制器的输入被视图控制器捕获到，并且发送给应用中的游戏控制器框架。
+
+当视图控制器的视图结构中有一个视图成为第一响应者后，UIKit正常处理事件。一旦在响应链中有一个`GCEventViewController`对象，我们可以通过`controllerUserInteractionEnabled`属性开关事件的处理流程。如果我们的游戏混合了UIKit和Metal内容，当游戏暂停时，改变`controllerUserInteractionEnabled`的属性来打开UIKit交互。当选择菜单上的选项恢复游戏的时候，应该重新切换回游戏控制器。
